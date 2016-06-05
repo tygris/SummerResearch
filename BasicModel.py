@@ -1,5 +1,7 @@
 #Basic Model 
-#6/03/2016, Natalie Wellen
+#6/04/2016, Natalie Wellen
+#This model is only the prior distribution of the hierarchical model
+# and does not make use of any MCMC or Bayesian Statistics
 
 import random
 import numpy as np
