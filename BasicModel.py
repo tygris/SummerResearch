@@ -19,6 +19,45 @@ a_sum = np.zeros((1, n)) #all of our know entries add to zero
 l_known = np.ones((1, n))
 l_sum = np.zeros((1,n))
 
+#function that takes total(a_j or l_i) and subtract known values from them 
+def fillera(j, L, a, a_sum, a_known, l, l_sum, l_known):
+	for i in range (0,n):
+		if(L[i,j]== -1):
+			if(l_known < n-1 or l[i] > a[j]):
+				L[i,j] = (a[j]-a_sum[j])
+				a_known[j] = a_known[j]+1
+				a_sum[j] = a_sum[j]+L[i,j]
+				l_known[i] = l_known[i]+1
+				l_sum[i] = l_sum[i]+L[i,j]
+			else:
+				L[i,j] = (l[i]-l_sum[i])
+				a_known[j] = a_known[j]+1
+				a_sum[j] = a_sum[j]+L[i,j]
+				l_known[i] = l_known[i]+1
+				l_sum[i] = l_sum[i]+L[i,j]
+		if(l_known == n-1):
+			L, a, a_sum, a_known, l, l_sum, l_known = fillerl(L, a, a_sum, a_known, l, l_sum, l_known)
+	return L, a, a_sum, a_known, l, l_sum, l_known
+
+def fillerl(j, L, a, a_sum, a_known, l, l_sum, l_known):
+	for i in range (0,n):
+		if(L[j,i]==-1):
+			if(a_known == n-1 and l[i] > a[j]):
+				L[j,i] = (a[i]-a_sum[i])
+				a_known[i] = a_known[i]+1
+				a_sum[i] = a_sum[i]+L[j,i]
+				l_known[j] = l_known[j]+1
+				l_sum[j] = l_sum[j]+L[j,i]
+			else:
+				L[j,i] = (l[j]-l_sum[j])
+				a_known[i] = a_known[i]+1
+				a_sum[i] = a_sum[i]+L[i,j]
+				l_known[j] = l_known[j]+1
+				l_sum[j] = l_sum[j]+L[j,i]
+		if(a_known[i] == n-1):
+			L, a, a_sum, a_known, l, l_sum, l_known = fillera(L, a, a_sum, a_known, l, l_sum, l_known)
+	return L, a, a_sum, a_known, l, l_sum, l_known
+
 #This model assumes p_ij and lamda_ij are the same for all i,j
 #randomly choose pij value (not less than 0.2)
 p = 0
@@ -38,6 +77,9 @@ for j in range (0, n-1):
 			A[i,j] = 1
 		else:
 			m=m+1
+			a_known[0,j] = a_known[0,j] + 1
+			l_known[0,i] = l_known[0,i] + 1
+			
 #Fill in edges for the lower triangle
 for i in range (0, n-1):
 	for j in range (i+1, n):
@@ -46,9 +88,14 @@ for i in range (0, n-1):
 			A[i,j] = 1
 		else:
 			m=m+1
+			a_known[0,j] = a_known[0,j] + 1
+			l_known[0,i] = l_known[0,i] + 1
+			
 #we have A
-print('A = '); print(A)
-print('m = '); print(m)
+print 'A = ', A
+print 'm = ', m
+print 'The values that are known for assets are ', a_known
+print 'The values that are known for liabilities are ', l_known
 
 #calculate degree of freedom (here is where we need to know m)
 #if zero simply fill in missing values
@@ -62,16 +109,19 @@ if(dof>0):
 #choose lambda
 	TL = np.sum(l)
 	lam = (p*n*(n-1))/TL
+	print 'The lambda we chose is:', lam
+	
 #weight the adjacency matrix with lamda
-
-#define the asset(a) and liabilities(l) vectors
-
-#define the row and column sum 
+	Sampler = lam*A
 
 #fill in known values of matrix
-#Will need some way of keeping track for when something is unknown, and if only one then we can fill it in!
-#function that takes total(a_j or l_i) and subtract known values from them 
-
+	L = -1*A
+	for j in range (0,n):
+		if(a_known == n-1):
+			fillera(j, L, a, a_sum, a_known, l, l_sum, l_known)
+		if(l_known[j] == n-1):
+			fillerl(j, L, a, a_sum, a_known, l, l_sum, l_known)
+				
 #sample and fill in the liabilities matrix degrees of freedom
 
 #fill in the known values of the matrix
