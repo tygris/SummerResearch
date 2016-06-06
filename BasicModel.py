@@ -23,42 +23,42 @@ l_sum = np.zeros((1,n))
 def fillera(j, L, a, a_sum, a_known, l, l_sum, l_known):
 	for i in range (0,n):
 		if(L[i,j]== -1):
-			aleft = a[j]-a_sum[j]
-			lleft = l[i]-l_sum[i]
+			aleft = a[0,j]-a_sum[0,j]
+			lleft = l[0,i]-l_sum[0,i]
 			if(aleft < lleft):
 				L[i,j] = (aleft)
-				a_known[j] = a_known[j]+1
-				a_sum[j] = a_sum[j]+L[i,j]
-				l_known[i] = l_known[i]+1
-				l_sum[i] = l_sum[i]+L[i,j]
+				a_known[0,j] = a_known[0,j]+1
+				a_sum[0,j] = a_sum[0,j]+L[i,j]
+				l_known[0,i] = l_known[0,i]+1
+				l_sum[0,i] = l_sum[0,i]+L[i,j]
 			else:
 				L[i,j] = (lleft)
-				a_known[j] = a_known[j]+1
-				a_sum[j] = a_sum[j]+L[i,j]
-				l_known[i] = l_known[i]+1
-				l_sum[i] = l_sum[i]+L[i,j]
-		if(l_known[i] == n-1):
+				a_known[0,j] = a_known[0,j]+1
+				a_sum[0,j] = a_sum[0,j]+L[i,j]
+				l_known[0,i] = l_known[0,i]+1
+				l_sum[0,i] = l_sum[0,i]+L[i,j]
+		if(l_known[0,i] == n-1):
 			L, a, a_sum, a_known, l, l_sum, l_known = fillerl(L, a, a_sum, a_known, l, l_sum, l_known)
 	return L, a, a_sum, a_known, l, l_sum, l_known
 
 def fillerl(j, L, a, a_sum, a_known, l, l_sum, l_known):
 	for i in range (0,n):
 		if(L[j,i]==-1):
-			aleft = a[j]-a_sum[j]
-			lleft = l[i]-l_sum[i]
+			aleft = a[0,j]-a_sum[0,j]
+			lleft = l[0,i]-l_sum[0,i]
 			if(aleft<lleft):
 				L[j,i] = (aleft)
-				a_known[i] = a_known[i]+1
-				a_sum[i] = a_sum[i]+L[j,i]
-				l_known[j] = l_known[j]+1
-				l_sum[j] = l_sum[j]+L[j,i]
+				a_known[0,i] = a_known[0,i]+1
+				a_sum[0,i] = a_sum[0,i]+L[j,i]
+				l_known[0,j] = l_known[0,j]+1
+				l_sum[0,j] = l_sum[0,j]+L[j,i]
 			else:
 				L[j,i] = (lleft)
-				a_known[i] = a_known[i]+1
-				a_sum[i] = a_sum[i]+L[i,j]
-				l_known[j] = l_known[j]+1
-				l_sum[j] = l_sum[j]+L[j,i]
-		if(a_known[i] == n-1):
+				a_known[0,i] = a_known[0,i]+1
+				a_sum[0,i] = a_sum[0,i]+L[i,j]
+				l_known[0,j] = l_known[0,j]+1
+				l_sum[0,j] = l_sum[0,j]+L[j,i]
+		if(a_known[0,i] == n-1):
 			L, a, a_sum, a_known, l, l_sum, l_known = fillera(L, a, a_sum, a_known, l, l_sum, l_known)
 	return L, a, a_sum, a_known, l, l_sum, l_known
 
@@ -131,10 +131,14 @@ j = 0
 while(dof>0):		
 #sample and fill in the liabilities matrix degrees of freedom
 	while(i<n):
+		print 'i = ', i
 		while(j<n):
+			print 'j = ', j
 			if(L[i,j] == -1):
 				L[i,j] = np.random.exponential(lam)
 				dof = dof-1
+				print 'L[i,j] = ', L[i,j]
+				print 'dof = ', dof
 				break
 			else:
 				j = j+1
