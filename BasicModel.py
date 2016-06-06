@@ -119,6 +119,14 @@ if(dof<0):
 	dof=0
 print('The Degree of Freedom in our network is:'); print(dof)
 
+#fill in known values of matrix
+L = -1*A
+for j in range (0,n):
+	if(a_known[0,j] == n-1):
+		fillera(j, L, a, a_sum, a_known, l, l_sum, l_known)
+	if(l_known[0,j] == n-1):
+		fillerl(j, L, a, a_sum, a_known, l, l_sum, l_known)
+
 if(dof>0):
 #choose lambda
 	TL = np.sum(l)
@@ -128,42 +136,44 @@ if(dof>0):
 #weight the adjacency matrix with lamda
 	Sampler = lam*A
 
-#fill in known values of matrix
-L = -1*A
-for j in range (0,n):
-	if(a_known[0,j] == n-1):
-		fillera(j, L, a, a_sum, a_known, l, l_sum, l_known)
-	if(l_known[0,j] == n-1):
-		fillerl(j, L, a, a_sum, a_known, l, l_sum, l_known)
-
-i = 0
-j = 0
-while(dof>0):
-	go = True
-	print 'dof', dof, 'go', go, 'i', i
+	i = 0
+	j = 0
+	while(dof>0):
+		go = True
+		print 'dof', dof, 'go', go, 'i', i
 #sample and fill in the liabilities matrix degrees of freedom
-	while(i<=n and go == True):
-		print 'i', i
-		while(j<=n):
-			print 'j', j
-			if(L[i,j] == -1):
-				L[i,j] = np.random.exponential(lam)
-				print 'Lij', L[i,j]
-				dof = dof-1
-				go = False
-				break
-			else:
-				j = j+1
-		i = i + 1
+		while(i<n and go == True):
+			print 'i', i
+			while(j<n):
+				print 'j', j
+				if(L[i,j] <= -0.1):
+					L[i,j] = np.random.exponential(lam)
+					print 'Lij', L[i,j]
+					dof = dof-1
+					go = False
+					break
+				else:
+					j = j+1
+			i = i + 1
 		
 #fill in the known values of the matrix
-	for k in range (0,n):
-		print 'k', k
-		if(a_known[0,k] == n-1):
-			L, a, a_sum, a_known, l, l_sum, l_known = fillera(k, L, a, a_sum, a_known, l, l_sum, l_known)
-		if(l_known[0,k] == n-1):
-			L, a, a_sum, a_known, l, l_sum, l_known = fillerl(k, L, a, a_sum, a_known, l, l_sum, l_known)
+		for k in range (0,n):
+			print 'k', k
+			if(a_known[0,k] == n-1):
+				L, a, a_sum, a_known, l, l_sum, l_known = fillera(k, L, a, a_sum, a_known, l, l_sum, l_known)
+			if(l_known[0,k] == n-1):
+				L, a, a_sum, a_known, l, l_sum, l_known = fillerl(k, L, a, a_sum, a_known, l, l_sum, l_known)
+else:
+	final = np.ones((1,n)).fill(n)
+	while(a_known != final):
+		for k in range (0,n):
+			print 'k', k
+			if(a_known[0,k] == n-1):
+				L, a, a_sum, a_known, l, l_sum, l_known = fillera(k, L, a, a_sum, a_known, l, l_sum, l_known)
+			if(l_known[0,k] == n-1):
+				L, a, a_sum, a_known, l, l_sum, l_known = fillerl(k, L, a, a_sum, a_known, l, l_sum, l_known)
 
 #We have completed our Liabiities matrix!
-print "The liabilities matrix is ", L
+print "The liabilities matrix is " 
+print L
 
