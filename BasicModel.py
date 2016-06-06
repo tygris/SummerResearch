@@ -19,12 +19,15 @@ a_sum = np.zeros((1, n)) #all of our know entries add to zero
 l_known = np.ones((1, n))
 l_sum = np.zeros((1,n))
 
+
 #function that takes total(a_j or l_i) and subtract known values from them 
 def fillera(j, L, a, a_sum, a_known, l, l_sum, l_known):
 	for i in range (0,n):
-		if(L[i,j]== -1):
-			aleft = a[0,j]-a_sum[0,j]
-			lleft = l[0,i]-l_sum[0,i]
+		if(L[i,j]<= -0.1):
+			aleft = np.maximum(a[0,j]-a_sum[0,j], 0)
+			print 'aleft', aleft
+			lleft = np.maximum(l[0,i]-l_sum[0,i], 0)
+			print 'lleft', lleft
 			if(aleft < lleft):
 				L[i,j] = (aleft)
 				a_known[0,j] = a_known[0,j]+1
@@ -38,14 +41,19 @@ def fillera(j, L, a, a_sum, a_known, l, l_sum, l_known):
 				l_known[0,i] = l_known[0,i]+1
 				l_sum[0,i] = l_sum[0,i]+L[i,j]
 		if(l_known[0,i] == n-1):
-			L, a, a_sum, a_known, l, l_sum, l_known = fillerl(L, a, a_sum, a_known, l, l_sum, l_known)
+			print i, j, 
+			print L, a, a_sum, a_known, l, l_sum, l_known
+			L, a, a_sum, a_known, l, l_sum, l_known = fillerl(i, L, a, a_sum, a_known, l, l_sum, l_known)
 	return L, a, a_sum, a_known, l, l_sum, l_known
 
 def fillerl(j, L, a, a_sum, a_known, l, l_sum, l_known):
+	k = 0 #filler variable for filler functions
 	for i in range (0,n):
-		if(L[j,i]==-1):
+		if(L[j,i]<=-0.1):
 			aleft = a[0,j]-a_sum[0,j]
+			print 'aleft', aleft
 			lleft = l[0,i]-l_sum[0,i]
+			print 'lleft', lleft
 			if(aleft<lleft):
 				L[j,i] = (aleft)
 				a_known[0,i] = a_known[0,i]+1
@@ -59,7 +67,9 @@ def fillerl(j, L, a, a_sum, a_known, l, l_sum, l_known):
 				l_known[0,j] = l_known[0,j]+1
 				l_sum[0,j] = l_sum[0,j]+L[j,i]
 		if(a_known[0,i] == n-1):
-			L, a, a_sum, a_known, l, l_sum, l_known = fillera(L, a, a_sum, a_known, l, l_sum, l_known)
+			print i, j
+			print L, a, a_sum, a_known, l, l_sum, l_known
+			L, a, a_sum, a_known, l, l_sum, l_known = fillera(i, L, a, a_sum, a_known, l, l_sum, l_known)
 	return L, a, a_sum, a_known, l, l_sum, l_known
 
 #This model assumes p_ij and lamda_ij are the same for all i,j
@@ -128,28 +138,31 @@ for j in range (0,n):
 
 i = 0
 j = 0
-while(dof>0):		
+while(dof>0):
+	go = True
+	print 'dof', dof, 'go', go, 'i', i
 #sample and fill in the liabilities matrix degrees of freedom
-	while(i<n):
-		print 'i = ', i
-		while(j<n):
-			print 'j = ', j
+	while(i<=n and go == True):
+		print 'i', i
+		while(j<=n):
+			print 'j', j
 			if(L[i,j] == -1):
 				L[i,j] = np.random.exponential(lam)
+				print 'Lij', L[i,j]
 				dof = dof-1
-				print 'L[i,j] = ', L[i,j]
-				print 'dof = ', dof
+				go = False
 				break
 			else:
 				j = j+1
 		i = i + 1
 		
 #fill in the known values of the matrix
-for j in range (0,n):
-	if(a_known == n-1):
-		fillera(j, L, a, a_sum, a_known, l, l_sum, l_known)
-	if(l_known[j] == n-1):
-		fillerl(j, L, a, a_sum, a_known, l, l_sum, l_known)
+	for k in range (0,n):
+		print 'k', k
+		if(a_known[0,k] == n-1):
+			L, a, a_sum, a_known, l, l_sum, l_known = fillera(k, L, a, a_sum, a_known, l, l_sum, l_known)
+		if(l_known[0,k] == n-1):
+			L, a, a_sum, a_known, l, l_sum, l_known = fillerl(k, L, a, a_sum, a_known, l, l_sum, l_known)
 
 #We have completed our Liabiities matrix!
 print "The liabilities matrix is ", L
