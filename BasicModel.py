@@ -42,7 +42,6 @@ def psame(n):
 		P[i,i] = 0
 	return P
 
-#Create the Adjacency matrix 
 def adjacency(P):
 	'''Function adjacency, randomly asigns edges based on a probabilities matrix
 		input P, the matrix of probabilities that an edge will be created between each pair of nodes
@@ -63,21 +62,21 @@ def adjacency(P):
 				A[i,j] = 1.
 	return A
 			
-def lamSame(n, p, l)
+def lamSame(n, p, l):
 	'''Function lamSame, creates a matrix with the same lamda value everywhere
 		input n, the number of nodes in the network
 		input p, the probability of an edge between nodes (P[i,j])
 		input l, the liability or asset vector
 		output Lambda, the matrix of lambdas, the paramater for weight distribution(~Exp)'''
-	#choose lambda
+	#choose lambda (for python need inverse of lambda call beta)
 	A = np.sum(l)
-	lam = (p*n*(n-1))/A #formula from Gandy & Veraart May 2016 Section 5.3.1
+	beta = A/(p*n*(n-1)) #inverse of formula from Gandy & Veraart May 2016 Section 5.3.1
 	#create the matrix
-	Lambda = np.ones((n,n))
-	Lambda = Lambda.fill(lam)
-	return Lambda
+	Lam = np.ones((n,n))
+	Lam = beta*Lam
+	return Lam
 
-def bmPrior(A, Lambda)
+def bmPrior(A, Lambda):
 	'''Function bmPrior, creates the prior distribution for our liabilities matrix (a first guess)
 		input A, the adjacency matrix that marks which edges we need to weight
 		input Lambda, contains the parameter to weight the edges (~Exp)
@@ -90,13 +89,26 @@ def bmPrior(A, Lambda)
 				L[i,j] = np.random.exponential(Lambda[i,j])
 	return L
 			
+#Create the Probability of edges matrix
+P = psame(n) #n is defined at top of script
+print 'The probabilities matrix is P = '
+print P
+
+#Create the Adjaceny matrix
+A = adjacency(P)
 #we have A
-print 'A = ', A
-print 'm = ', m
+print 'The adjaceny matrix A = '
+print A
 
-print 'The lambda we chose is:', lam
+#Create the matrix of weight distributions
+Lam = lamSame(n, P[1,2], l) #p is an off diagonal entry of P and l is defined at top
+print 'The matrix of weight distributions, Lambda = '
+print Lam
 
-#We have completed our Liabiities matrix!
+#Finally create the sample liabilities matrix
+L = bmPrior(A, Lam)
 print "The liabilities matrix is " 
 print L
+
+print "The sum of all the elements in L is ", np.sum(L)
 
